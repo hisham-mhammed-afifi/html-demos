@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduzione alla Programmazione</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #12121a;
+            --accent-cyan: #00f5d4;
+            --accent-magenta: #f72585;
+            --accent-yellow: #fee440;
+            --accent-blue: #4361ee;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Syne', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-cyan);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease, opacity 0.3s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--accent-magenta);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(10,10,15,0.9), transparent);
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+            letter-spacing: 2px;
+        }
+
+        .nav-dots {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.4;
+        }
+
+        .nav-dot:hover, .nav-dot.active {
+            background: var(--accent-cyan);
+            opacity: 1;
+            transform: scale(1.3);
+        }
+
+        /* Slide Container */
+        .presentation {
+            width: 100%;
+        }
+
+        .slide {
+            min-height: 100vh;
+            padding: 8rem 5rem 5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background Effects */
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(67, 97, 238, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(67, 97, 238, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+        }
+
+        .floating-shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
+        }
+
+        /* Slide Number */
+        .slide-number {
+            position: absolute;
+            top: 50%;
+            right: 3rem;
+            transform: translateY(-50%);
+            font-family: 'Space Mono', monospace;
+            font-size: 15rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.02);
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        /* Typography */
+        .slide-title {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 800;
+            margin-bottom: 2rem;
+            line-height: 1.1;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: slideUp 0.8s ease forwards;
+        }
+
+        .title-accent {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .slide-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-magenta);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeIn 0.6s ease 0.2s forwards;
+        }
+
+        .slide-content {
+            max-width: 800px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: slideUp 0.8s ease 0.3s forwards;
+        }
+
+        .slide-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .highlight {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .card:nth-child(1) { animation: slideUp 0.6s ease 0.4s forwards; }
+        .card:nth-child(2) { animation: slideUp 0.6s ease 0.5s forwards; }
+        .card:nth-child(3) { animation: slideUp 0.6s ease 0.6s forwards; }
+        .card:nth-child(4) { animation: slideUp 0.6s ease 0.7s forwards; }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 245, 212, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .card-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Flow Diagram */
+        .flow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 3rem;
+        }
+
+        .flow-box {
+            background: var(--bg-card);
+            border: 2px solid;
+            border-radius: 16px;
+            padding: 2rem 2.5rem;
+            text-align: center;
+            position: relative;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .flow-box:nth-child(1) {
+            border-color: var(--accent-cyan);
+            animation: popIn 0.5s ease 0.4s forwards;
+        }
+
+        .flow-box:nth-child(3) {
+            border-color: var(--accent-yellow);
+            animation: popIn 0.5s ease 0.6s forwards;
+        }
+
+        .flow-box:nth-child(5) {
+            border-color: var(--accent-magenta);
+            animation: popIn 0.5s ease 0.8s forwards;
+        }
+
+        .flow-arrow {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            opacity: 0;
+            animation: fadeIn 0.3s ease 0.5s forwards;
+        }
+
+        .flow-arrow:nth-child(4) {
+            animation-delay: 0.7s;
+        }
+
+        .flow-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            opacity: 0.6;
+        }
+
+        .flow-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Language Tags */
+        .lang-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .lang-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.1rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+
+        .lang-tag:nth-child(1) { animation: slideRight 0.5s ease 0.3s forwards; }
+        .lang-tag:nth-child(2) { animation: slideRight 0.5s ease 0.4s forwards; }
+        .lang-tag:nth-child(3) { animation: slideRight 0.5s ease 0.5s forwards; }
+        .lang-tag:nth-child(4) { animation: slideRight 0.5s ease 0.6s forwards; }
+
+        .lang-tag:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            transform: scale(1.05);
+        }
+
+        .lang-tag span {
+            margin-right: 0.5rem;
+        }
+
+        /* Skills List */
+        .skills-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem 2rem;
+            background: var(--bg-card);
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-cyan);
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+
+        .skill-item:nth-child(1) { animation: slideRight 0.6s ease 0.3s forwards; }
+        .skill-item:nth-child(2) { animation: slideRight 0.6s ease 0.45s forwards; border-left-color: var(--accent-magenta); }
+        .skill-item:nth-child(3) { animation: slideRight 0.6s ease 0.6s forwards; border-left-color: var(--accent-yellow); }
+
+        .skill-icon {
+            font-size: 2rem;
+        }
+
+        .skill-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* Steps */
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .steps-container::before {
+            content: '';
+            position: absolute;
+            left: 28px;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--accent-cyan), var(--accent-magenta));
+            opacity: 0.3;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .step:nth-child(1) { animation: slideUp 0.6s ease 0.3s forwards; }
+        .step:nth-child(2) { animation: slideUp 0.6s ease 0.5s forwards; }
+        .step:nth-child(3) { animation: slideUp 0.6s ease 0.7s forwards; }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--accent-cyan);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-content {
+            padding-top: 0.8rem;
+        }
+
+        .step-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Final Message */
+        .final-message {
+            background: linear-gradient(135deg, rgba(0,245,212,0.1), rgba(247,37,133,0.1));
+            border: 1px solid rgba(0,245,212,0.2);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-top: 3rem;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.95);
+            animation: popIn 0.8s ease 0.5s forwards;
+        }
+
+        .final-message p {
+            font-size: 1.5rem;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        .final-message .emoji {
+            font-size: 3rem;
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes popIn {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Intersection Observer Animation Classes */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .slide {
+                padding: 6rem 2rem 3rem;
+            }
+
+            .nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .slide-number {
+                font-size: 8rem;
+                right: 1rem;
+            }
+
+            .flow-container {
+                flex-direction: column;
+            }
+
+            .flow-arrow {
+                transform: rotate(90deg);
+            }
+
+            .cursor, .cursor-dot {
+                display: none;
+            }
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.6;
+            animation: bounce 2s ease infinite;
+        }
+
+        .scroll-indicator span {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+        }
+
+        .scroll-arrow {
+            width: 24px;
+            height: 24px;
+            border-right: 2px solid var(--text-primary);
+            border-bottom: 2px solid var(--text-primary);
+            transform: rotate(45deg);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-magenta));
+            z-index: 1000;
+            transition: width 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-dot"></div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="logo">&lt;/CODE&gt;</div>
+        <div class="nav-dots">
+            <div class="nav-dot active" data-slide="1"></div>
+            <div class="nav-dot" data-slide="2"></div>
+            <div class="nav-dot" data-slide="3"></div>
+            <div class="nav-dot" data-slide="4"></div>
+            <div class="nav-dot" data-slide="5"></div>
+            <div class="nav-dot" data-slide="6"></div>
+        </div>
+    </nav>
+
+    <!-- Presentation -->
+    <main class="presentation">
+        <!-- Slide 1: Cos'è la Programmazione -->
+        <section class="slide" id="slide1">
+            <div class="bg-grid"></div>
+            <div class="floating-shape" style="width: 400px; height: 400px; background: var(--accent-cyan); top: -100px; right: -100px;"></div>
+            <div class="floating-shape" style="width: 300px; height: 300px; background: var(--accent-magenta); bottom: -50px; left: -50px; animation-delay: -10s;"></div>
+            <div class="slide-number">01</div>
+            
+            <div class="slide-subtitle">Slide 1</div>
+            <h1 class="slide-title">Cos'è la <span class="title-accent">Programmazione</span>?</h1>
+            
+            <div class="slide-content">
+                <p class="slide-text">
+                    La <span class="highlight">programmazione</span> è il processo di scrivere istruzioni che un computer può eseguire per risolvere un problema o svolgere un'attività specifica.
+                </p>
+                <p class="slide-text">
+                    In parole semplici: è come dare <span class="highlight">ordini chiari e precisi</span> a una macchina, passo dopo passo.
+                </p>
+                
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-icon">🧮</div>
+                        <div class="card-title">Calcoli</div>
+                        <div class="card-text">Dire al computer come calcolare un totale</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">👆</div>
+                        <div class="card-title">Interazioni</div>
+                        <div class="card-text">Dire a un'app come reagire quando l'utente clicca un bottone</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 2: Perché la Programmazione è Importante -->
+        <section class="slide" id="slide2">
+            <div class="bg-grid"></div>
+            <div class="floating-shape" style="width: 350px; height: 350px; background: var(--accent-blue); top: 20%; left: -100px;"></div>
+            <div class="floating-shape" style="width: 250px; height: 250px; background: var(--accent-yellow); bottom: 10%; right: -50px; animation-delay: -5s;"></div>
+            <div class="slide-number">02</div>
+            
+            <div class="slide-subtitle animate-on-scroll">Slide 2</div>
+            <h1 class="slide-title animate-on-scroll">Perché è <span class="title-accent">Importante</span>?</h1>
+            
+            <div class="slide-content animate-on-scroll">
+                <p class="slide-text">
+                    La programmazione è <span class="highlight">ovunque</span> nel mondo di oggi:
+                </p>
+                
+                <div class="cards-grid">
+                    <div class="card">
+                        <div class="card-icon">📱</div>
+                        <div class="card-title">Smartphone</div>
+                        <div class="card-text">Ogni app che usi è frutto della programmazione</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🌐</div>
+                        <div class="card-title">Siti Web</div>
+                        <div class="card-text">Internet funziona grazie al codice</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🏦</div>
+                        <div class="card-title">Banche</div>
+                        <div class="card-text">Pagamenti e transazioni sicure</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🚗</div>
+                        <div class="card-title">Dispositivi Smart</div>
+                        <div class="card-text">Auto, case e oggetti intelligenti</div>
+                    </div>
+                </div>
+
+                <div class="skills-list" style="margin-top: 3rem;">
+                    <div class="skill-item">
+                        <div class="skill-icon">⚡</div>
+                        <div class="skill-text">Automatizzare il lavoro</div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">✓</div>
+                        <div class="skill-text">Ridurre errori umani</div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-icon">💡</div>
+                        <div class="skill-text">Creare soluzioni innovative</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 3: Come Funziona un Programma -->
+        <section class="slide" id="slide3">
+            <div class="bg-grid"></div>
+            <div class="floating-shape" style="width: 300px; height: 300px; background: var(--accent-cyan); bottom: 20%; right: 10%;"></div>
+            <div class="slide-number">03</div>
+            
+            <div class="slide-subtitle animate-on-scroll">Slide 3</div>
+            <h1 class="slide-title animate-on-scroll">Come <span class="title-accent">Funziona</span>?</h1>
+            
+            <div class="slide-content animate-on-scroll">
+                <p class="slide-text">
+                    Un programma segue sempre questo schema fondamentale:
+                </p>
+                
+                <div class="flow-container">
+                    <div class="flow-box">
+                        <div class="flow-label">STEP 1</div>
+                        <div class="flow-title" style="color: var(--accent-cyan);">INPUT</div>
+                        <div style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">Dati in ingresso</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">
+                        <div class="flow-label">STEP 2</div>
+                        <div class="flow-title" style="color: var(--accent-yellow);">ELABORAZIONE</div>
+                        <div style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">Logica e regole</div>
+                    </div>
+                    <div class="flow-arrow">→</div>
+                    <div class="flow-box">
+                        <div class="flow-label">STEP 3</div>
+                        <div class="flow-title" style="color: var(--accent-magenta);">OUTPUT</div>
+                        <div style="color: var(--text-secondary); margin-top: 0.5rem; font-size: 0.9rem;">Risultato finale</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 3rem; opacity: 1; transform: none;">
+                    <div class="card-title" style="color: var(--accent-cyan);">📌 Esempio Pratico</div>
+                    <div class="card-text" style="font-size: 1.1rem; margin-top: 1rem;">
+                        <strong>Input:</strong> due numeri (5 e 3)<br>
+                        <strong>Elaborazione:</strong> somma (5 + 3)<br>
+                        <strong>Output:</strong> risultato (8)
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 4: Linguaggi di Programmazione -->
+        <section class="slide" id="slide4">
+            <div class="bg-grid"></div>
+            <div class="floating-shape" style="width: 400px; height: 400px; background: var(--accent-magenta); top: -150px; left: 30%;"></div>
+            <div class="slide-number">04</div>
+            
+            <div class="slide-subtitle animate-on-scroll">Slide 4</div>
+            <h1 class="slide-title animate-on-scroll">I <span class="title-accent">Linguaggi</span></h1>
+            
+            <div class="slide-content animate-on-scroll">
+                <p class="slide-text">
+                    Un <span class="highlight">linguaggio di programmazione</span> è un mezzo di comunicazione tra l'essere umano e il computer.
+                </p>
+                
+                <div class="lang-container">
+                    <div class="lang-tag"><span>🟨</span> JavaScript</div>
+                    <div class="lang-tag"><span>🐍</span> Python</div>
+                    <div class="lang-tag"><span>☕</span> Java</div>
+                    <div class="lang-tag"><span>💜</span> C#</div>
+                </div>
+
+                <div class="final-message" style="text-align: left; margin-top: 2rem;">
+                    <p style="font-size: 1.1rem;">
+                        <span style="color: var(--accent-cyan); font-weight: 700;">💡 Nota importante:</span><br>
+                        Ogni linguaggio ha scopi e vantaggi diversi. Non esiste un linguaggio "migliore" in assoluto, ma quello più adatto al tuo progetto.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 5: Come Ragiona un Programmatore -->
+        <section class="slide" id="slide5">
+            <div class="bg-grid"></div>
+            <div class="floating-shape" style="width: 350px; height: 350px; background: var(--accent-yellow); bottom: -100px; left: 20%;"></div>
+            <div class="slide-number">05</div>
+            
+            <div class="slide-subtitle animate-on-scroll">Slide 5</div>
+            <h1 class="slide-title animate-on-scroll">La <span class="title-accent">Mentalità</span></h1>
+            
+            <div class="slide-content animate-on-scroll">
+                <p class="slide-text">
+                    Un programmatore:
+                </p>
+                
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Analizza il problema</div>
+                            <div class="step-desc">Comprende a fondo cosa deve essere risolto</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Lo divide in parti più piccole</div>
+                            <div class="step-desc">Scompone il problema in sotto-problemi gestibili</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Scrive soluzioni logiche</div>
+                            <div class="step-desc">Traduce la logica in codice eseguibile</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cards-grid" style="margin-top: 3rem;">
+                    <div class="card">
+                        <div class="card-icon">🧩</div>
+                        <div class="card-title">Problem Solving</div>
+                        <div class="card-text">Capacità di risolvere problemi complessi</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🧠</div>
+                        <div class="card-title">Pensiero Logico</div>
+                        <div class="card-text">Ragionamento strutturato e sequenziale</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-title">Pazienza e Precisione</div>
+                        <div class="card-text">Attenzione ai dettagli e perseveranza</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Da Dove Iniziare -->
+        <section class="slide" id="slide6">
+            <div class="bg-grid"></div>
+            <div class="floating-shape" style="width: 500px; height: 500px; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta)); top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+            <div class="slide-number">06</div>
+            
+            <div class="slide-subtitle animate-on-scroll">Slide 6</div>
+            <h1 class="slide-title animate-on-scroll">Da Dove <span class="title-accent">Iniziare</span>?</h1>
+            
+            <div class="slide-content animate-on-scroll">
+                <p class="slide-text">
+                    Passi consigliati per iniziare il tuo percorso:
+                </p>
+                
+                <div class="steps-container">
+                    <div class="step">
+                        <div class="step-number" style="border-color: var(--accent-cyan);">1</div>
+                        <div class="step-content">
+                            <div class="step-title">Capire i concetti base</div>
+                            <div class="step-desc">Variabili, condizioni, cicli — le fondamenta di ogni linguaggio</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number" style="border-color: var(--accent-yellow);">2</div>
+                        <div class="step-content">
+                            <div class="step-title">Scegliere un linguaggio semplice</div>
+                            <div class="step-desc">Python è spesso consigliato per iniziare</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number" style="border-color: var(--accent-magenta);">3</div>
+                        <div class="step-content">
+                            <div class="step-title">Fare tanta pratica</div>
+                            <div class="step-desc">La programmazione si impara facendo, non solo leggendo</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="final-message">
+                    <span class="emoji">🚀</span>
+                    <p>
+                        La programmazione <span style="color: var(--accent-cyan);">non è magia</span>.<br>
+                        È una competenza che <span style="color: var(--accent-magenta);">chiunque può imparare</span><br>
+                        con il giusto metodo e costanza.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator" id="scrollIndicator">
+        <span>SCROLL</span>
+        <div class="scroll-arrow"></div>
+    </div>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorDot = document.querySelector('.cursor-dot');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX - 10 + 'px';
+            cursor.style.top = e.clientY - 10 + 'px';
+            cursorDot.style.left = e.clientX - 2.5 + 'px';
+            cursorDot.style.top = e.clientY - 2.5 + 'px';
+        });
+
+        // Progress Bar
+        const progressBar = document.getElementById('progressBar');
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / docHeight) * 100;
+            progressBar.style.width = scrollPercent + '%';
+        });
+
+        // Navigation Dots
+        const navDots = document.querySelectorAll('.nav-dot');
+        const slides = document.querySelectorAll('.slide');
+
+        navDots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const slideNum = dot.getAttribute('data-slide');
+                document.getElementById('slide' + slideNum).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Update active nav dot on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+
+        const slideObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const slideId = entry.target.id;
+                    const slideNum = slideId.replace('slide', '');
+                    
+                    navDots.forEach(dot => dot.classList.remove('active'));
+                    document.querySelector(`[data-slide="${slideNum}"]`).classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        slides.forEach(slide => slideObserver.observe(slide));
+
+        // Animate on Scroll
+        const animateElements = document.querySelectorAll('.animate-on-scroll');
+        
+        const animateObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        animateElements.forEach(el => animateObserver.observe(el));
+
+        // Hide scroll indicator after scrolling
+        const scrollIndicator = document.getElementById('scrollIndicator');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                scrollIndicator.style.opacity = '0';
+            } else {
+                scrollIndicator.style.opacity = '0.6';
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const currentSlide = [...slides].findIndex(slide => {
+                const rect = slide.getBoundingClientRect();
+                return rect.top >= -window.innerHeight / 2 && rect.top < window.innerHeight / 2;
+            });
+
+            if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+                e.preventDefault();
+                if (currentSlide < slides.length - 1) {
+                    slides[currentSlide + 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                e.preventDefault();
+                if (currentSlide > 0) {
+                    slides[currentSlide - 1].scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
